@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Subnets</h1>
+    <p>Access Type: Guest</p>
+    <p></p>
+    {% if e %}
+    <p>{{ e }}</p>
+    {% endif %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IP Subnet</th>
+                <th>BD</th>
+                <th>Tenant</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subnet in subnets %}
+            <tr>
+                <td>{{ subnet[0] }}</td>
+                <td>{{ subnet[1] }}</td>
+                <td>{{ subnet[2] }}</td>
+                <td>{{ subnet[3] }}</td>
+                <td>{{ subnet[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p></p>
+    <p></p>
+    <form method="post">
+        <button class="btn btn-secondary" type="submit" name="home" value="home">Home</button>
+        <button class="btn btn-danger" type="submit" name="exit" value="exit">Exit</button>
+    </form>
+</div>
+{% endblock %}

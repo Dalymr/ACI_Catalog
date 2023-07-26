@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Endpoints Page</h2>
+    <p>Access Type: Guest</p>
+    <p></p>
+    {% if e %}
+    <p>{{ e }}</p>
+    {% endif %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IP Endpoint</th>
+                <th>MAC Address</th>
+                <th>EPG</th>
+                <th>Application</th>
+                <th>Bridge Domain</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td>{{ item[0] }}</td>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[2] }}</td>
+                    <td>{{ item[3] }}</td>
+                    <td>{{ item[4] }}</td>
+                    <td>{{ item[5] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p></p>
+    <p></p>
+    <form method="POST">
+        <button class="btn btn-danger" type="submit" name="exit" value="exit">Exit</button>
+    </form>
+</div>
+{% endblock %}

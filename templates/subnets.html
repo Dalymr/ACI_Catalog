@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Subnets</h1>
+    <p id="Access">Access Type: Admin</p>
+    <p></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IP Subnet</th>
+                <th>BD</th>
+                <th>Tenant</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subnet in subnets %}
+            <tr>
+                <td>{{ subnet[0] }}</td>
+                <td>{{ subnet[1] }}</td>
+                <td>{{ subnet[2] }}</td>
+                <td>{{ subnet[3] }}</td>
+                <td>{{ subnet[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p></p>
+    <p></p>
+    <form style="align-items: center;" method="post">
+        <button class="btn btn-green" type="submit" name="refresh" value="refresh">Refresh</button>
+    </form>
+</div>
+{% endblock %}

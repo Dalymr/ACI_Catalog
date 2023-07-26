@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Login as Admin</h1>
+    <p></p>
+    {% if error %}
+    <p class="alert alert-danger">{{ error }}</p>
+    {% endif %}
+    {% if e %}
+    <p>{{ e }}</p>
+    {% endif %}
+    <form method="POST">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="username" name="username">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <button type="submit" class="btn btn-green" name="Login" value="login">Login</button>
+        <button type="submit" class="btn btn-secondary" name="limited" value="limited">Limited Access (Guest)</button>
+    </form>
+</div>
+{% endblock %}
