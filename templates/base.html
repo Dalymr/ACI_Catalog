@@ -3,6 +3,8 @@
 <head>
     <title>{% block title %}Endpointer{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ealing+Regular&display=swap">
+    
     <style>
         /* Custom styles to resemble Cisco ACI 5.2 interface */
         .btn-green {
@@ -13,12 +15,13 @@
             margin-left: 50px; /* Add this CSS rule */
         }
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Ealing Regular', sans-serif;
+            font-color: #ffffff;
+            background-color: #ffffff;
         }
 
         .navbar {
-            background-color: #fff;
+            background-color: #b21414;
             border-bottom: 1px solid #ccc;
         }
 
@@ -34,7 +37,7 @@
         .container {
             margin-top: 150px;
             width: 60%;
-            background-color: #f5f5f5;
+            background-color: #ffffff;
             position: relative;
             align-items: center;
         }
@@ -45,7 +48,7 @@
 
         table {
             background-color: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #ed1b24;
             border-collapse: collapse;
             width: 100%;
         }
@@ -57,7 +60,7 @@
         }
 
         button.btn-primary {
-            background-color: #007bff;
+            background-color: #ed1b24;
             border-color: #007bff;
         }
 
