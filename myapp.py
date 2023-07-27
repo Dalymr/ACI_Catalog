@@ -227,21 +227,6 @@ def get_endpoints(token, force_refresh=False):
     mycnx.commit()
 
 
-def get_epgs(token):
-    print("am i getting epgs")
-    cursor = mycnx.cursor()
-    epg_url = f"{apic_url}/api/class/fvAEPg.json"
-    headers = {
-        "Cookie": f"APIC-Cookie={token}"
-    }
-
-    response = requests.get(epg_url, headers=headers, verify=False)
-    epgs_data = response.json()
-
-    for epg_data in epgs_data['imdata']:
-        epg_dn = epg_data['fvAEPg']['attributes']['dn']
-        epg_name = epg_data['fvAEPg']['attributes']['name']
-
 
 def get_subnets(token):
     print("am i adding subnets ?")
@@ -286,6 +271,224 @@ def get_subnets(token):
             continue
 # Commit the changes
     mycnx.commit()
+
+
+
+
+def get_epgs(token):
+    cursor = mycnx.cursor()
+    epg_url = f"{apic_url}/api/class/fvAEPg.json"
+    headers = {
+        "Cookie": f"APIC-Cookie={token}"
+    }
+
+    response = requests.get(epg_url, headers=headers, verify=False)
+    epgs_data = response.json()
+
+    for epg_data in epgs_data['imdata']:
+        epg_dn = epg_data['fvAEPg']['attributes']['dn']
+        epg_name = epg_data['fvAEPg']['attributes']['name']
+        tenant_id = epg_data['fvAEPg']['attributes']['dn'].split('/tn-')[1].split('/')[0]
+        health_score = epg_data['fvAEPg']['attributes']['healthScore']
+        
+        # Additional API call to retrieve endpoint count for each EPG
+        endpoint_url = f"{apic_url}/api/class/fvCEp.json?query-target-filter=eq(fvCEp.epgDn,'{epg_dn}')"
+        endpoint_response = requests.get(endpoint_url, headers=headers, verify=False)
+        endpoint_data = endpoint_response.json()
+        endpoint_count = len(endpoint_data['imdata'])
+
+        # Check if the EPG already exists in the database
+        cursor.execute("SELECT MAX(id) FROM EPGs")
+        last_inserted_id = cursor.fetchone()[0]
+        next_id = last_inserted_id + 1 if last_inserted_id else 1
+
+        try:
+            cursor.execute("SELECT * FROM EPGs WHERE EPGId = %s", (epg_dn,))
+            existing_epg = cursor.fetchone()
+        except mysql.connector.Error as e:
+            print("Error in EPG exist:", e)
+            continue
+
+        if existing_epg:
+            # If the EPG already exists, update its attributes with the new information
+            try:
+                cursor.execute("UPDATE EPGs SET id = %s, EPGName = %s, TenantId = %s, HealthScore = %s, EndpointCount = %s WHERE EPGId = %s",
+                               (next_id, epg_name, tenant_id, health_score, endpoint_count, epg_dn))
+            except mysql.connector.Error as e:
+                print("Error updating EPG:", e)
+                continue
+        else:
+            # If the EPG does not exist, insert it into the database
+            try:
+                cursor.execute("INSERT INTO EPGs (id, EPGId, EPGName, TenantId, HealthScore, EndpointCount) VALUES (%s, %s, %s, %s, %s, %s)",
+                               (next_id, epg_dn, epg_name, tenant_id, health_score, endpoint_count))
+            except mysql.connector.Error as e:
+                print("Error inserting EPG:", e)
+                continue
+
+    # Commit the changes to the database
+    mycnx.commit()
+
+
+
+
+
+def get_application_profiles(token):
+    cursor = mycnx.cursor()
+    app_profile_url = f"{apic_url}/api/class/fvAp.json"
+    headers = {
+        "Cookie": f"APIC-Cookie={token}"
+    }
+
+    response = requests.get(app_profile_url, headers=headers, verify=False)
+    app_profiles_data = response.json()
+
+    for app_profile_data in app_profiles_data['imdata']:
+        app_profile_dn = app_profile_data['fvAp']['attributes']['dn']
+        app_profile_name = app_profile_data['fvAp']['attributes']['name']
+        tenant_id = app_profile_data['fvAp']['attributes']['dn'].split('/tn-')[1].split('/')[0]
+        description = app_profile_data['fvAp']['attributes'].get('descr', '')
+        scope = app_profile_data['fvAp']['attributes'].get('scope', '')
+
+        # Check if the Application Profile already exists in the database
+        cursor.execute("SELECT MAX(id) FROM ApplicationProfiles")
+        last_inserted_id = cursor.fetchone()[0]
+        next_id = last_inserted_id + 1 if last_inserted_id else 1
+
+        try:
+            cursor.execute("SELECT * FROM ApplicationProfiles WHERE AppProfileId = %s", (app_profile_dn,))
+            existing_app_profile = cursor.fetchone()
+        except mysql.connector.Error as e:
+            print("Error in Application Profile exist:", e)
+            continue
+
+        if existing_app_profile:
+            # If the Application Profile already exists, update its attributes with the new information
+            try:
+                cursor.execute("UPDATE ApplicationProfiles SET id = %s, AppProfileName = %s, TenantId = %s, Description = %s, Scope = %s WHERE AppProfileId = %s",
+                               (next_id, app_profile_name, tenant_id, description, scope, app_profile_dn))
+            except mysql.connector.Error as e:
+                print("Error updating Application Profile:", e)
+                continue
+        else:
+            # If the Application Profile does not exist, insert it into the database
+            try:
+                cursor.execute("INSERT INTO ApplicationProfiles (id, AppProfileId, AppProfileName, TenantId, Description, Scope) VALUES (%s, %s, %s, %s, %s, %s)",
+                               (next_id, app_profile_dn, app_profile_name, tenant_id, description, scope))
+            except mysql.connector.Error as e:
+                print("Error inserting Application Profile:", e)
+                continue
+
+    # Commit the changes to the database
+    mycnx.commit()
+
+
+
+
+
+
+def get_bridge_domains(token):
+    cursor = mycnx.cursor()
+    bd_url = f"{apic_url}/api/class/fvBD.json"
+    headers = {
+        "Cookie": f"APIC-Cookie={token}"
+    }
+
+    response = requests.get(bd_url, headers=headers, verify=False)
+    bd_data = response.json()
+
+    for bd_entry in bd_data['imdata']:
+        bd_dn = bd_entry['fvBD']['attributes']['dn']
+        bd_name = bd_entry['fvBD']['attributes']['name']
+        vrf = bd_entry['fvBD']['attributes']['scope']
+
+        # Check if the BridgeDomain already exists in the database
+        cursor.execute("SELECT MAX(id) FROM BridgeDomains")
+        last_inserted_id = cursor.fetchone()[0]
+        next_id = last_inserted_id + 1 if last_inserted_id else 1
+
+        try:
+            cursor.execute("SELECT * FROM BridgeDomains WHERE BDId = %s", (bd_dn,))
+            existing_bd = cursor.fetchone()
+        except mysql.connector.Error as e:
+            print("Error in BridgeDomain exist:", e)
+            continue
+
+        if existing_bd:
+            # If the BridgeDomain already exists, update its attributes with the new information
+            try:
+                cursor.execute("UPDATE BridgeDomains SET id = %s, BDName = %s, VRF = %s, Scope = %s WHERE BDId = %s",
+                               (next_id, bd_name, vrf, bd_dn))
+            except mysql.connector.Error as e:
+                print("Error updating BridgeDomain:", e)
+                continue
+        else:
+            # If the BridgeDomain does not exist, insert it into the database
+            try:
+                cursor.execute("INSERT INTO BridgeDomains (id, BDId, BDName, VRF, Scope) VALUES (%s, %s, %s, %s, %s)",
+                               (next_id, bd_dn, bd_name, vrf, bd_dn))
+            except mysql.connector.Error as e:
+                print("Error inserting BridgeDomain:", e)
+                continue
+
+    # Commit the changes to the database
+    mycnx.commit()
+
+
+
+
+
+def get_tenants(token):
+    cursor = mycnx.cursor()
+    tenant_url = f"{apic_url}/api/class/fvTenant.json"
+    headers = {
+        "Cookie": f"APIC-Cookie={token}"
+    }
+
+    response = requests.get(tenant_url, headers=headers, verify=False)
+    tenants_data = response.json()
+
+    for tenant_data in tenants_data['imdata']:
+        tenant_dn = tenant_data['fvTenant']['attributes']['dn']
+        tenant_name = tenant_data['fvTenant']['attributes']['name']
+        description = tenant_data['fvTenant']['attributes'].get('descr', '')
+        scope = tenant_data['fvTenant']['attributes'].get('scope', '')
+
+        # Check if the Tenant already exists in the database
+        cursor.execute("SELECT MAX(id) FROM Tenants")
+        last_inserted_id = cursor.fetchone()[0]
+        next_id = last_inserted_id + 1 if last_inserted_id else 1
+
+        try:
+            cursor.execute("SELECT * FROM Tenants WHERE TenantId = %s", (tenant_dn,))
+            existing_tenant = cursor.fetchone()
+        except mysql.connector.Error as e:
+            print("Error in Tenant exist:", e)
+            continue
+
+        if existing_tenant:
+            # If the Tenant already exists, update its attributes with the new information
+            try:
+                cursor.execute("UPDATE Tenants SET id = %s, TenantName = %s, Description = %s, Scope = %s WHERE TenantId = %s",
+                               (next_id, tenant_name, description, scope, tenant_dn))
+            except mysql.connector.Error as e:
+                print("Error updating Tenant:", e)
+                continue
+        else:
+            # If the Tenant does not exist, insert it into the database
+            try:
+                cursor.execute("INSERT INTO Tenants (id, TenantId, TenantName, Description, Scope) VALUES (%s, %s, %s, %s, %s)",
+                               (next_id, tenant_dn, tenant_name, description, scope))
+            except mysql.connector.Error as e:
+                print("Error inserting Tenant:", e)
+                continue
+
+    # Commit the changes to the database
+    mycnx.commit()
+
+
+
+
 
 
 # Define routes for the Flask app
