@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Tenants</h1>
+    <p>Access Type: Guest</p>
+    <p></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tenant ID</th>
+                <th>Tenant Name</th>
+                <th>Description</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tenant in tenants_data %}
+            <tr>
+                <td>{{ tenant[0] }}</td>
+                <td>{{ tenant[1] }}</td>
+                <td>{{ tenant[2] }}</td>
+                <td>{{ tenant[3] }}</td>
+                <td>{{ tenant[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
