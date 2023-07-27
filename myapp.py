@@ -77,28 +77,76 @@ def initialize_database(host, username, password, database):
     )
     cursor = cnx.cursor()
 
-    # Create table endpoints if does not exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS endpoints (
-        id INT PRIMARY KEY,
-        IPEndpoint VARCHAR(255) UNIQUE,
-        MAC VARCHAR(255),
-        RelEPG VARCHAR(255),
-        RelAPP VARCHAR(255),
-        relBD VARCHAR(255)
-    )
-''')
 
-    # Create table "subnets" if does not exist
+    # Create table endpoints if it does not exist
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS subnets (
-        id INT PRIMARY KEY,
-        IPsubnet VARCHAR(255) UNIQUE,
-        BD VARCHAR(255),
-        Tenant VARCHAR(255),
+        CREATE TABLE IF NOT EXISTS endpoints (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            IPEndpoint VARCHAR(255) UNIQUE,
+            MAC VARCHAR(255),
+            RelEPG VARCHAR(255),
+            RelAPP VARCHAR(255),
+            relBD VARCHAR(255)
+        )
+    ''')
+
+    # Create table subnets if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS subnets (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            IPsubnet VARCHAR(255) UNIQUE,
+            BD VARCHAR(255),
+            Tenant VARCHAR(255),
+            Scope VARCHAR(255)
+        )
+    ''')
+
+    # Create table EPGs if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS EPGs (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            EPGId VARCHAR(255) UNIQUE,
+            EPGName VARCHAR(255),
+            TenantId VARCHAR(255),
+            HealthScore FLOAT,
+            EndpointCount INT
+        )
+    ''')
+
+    # Create table Tenants if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Tenants (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            TenantId VARCHAR(255) UNIQUE,
+            TenantName VARCHAR(255),
+            Description VARCHAR(255),
+            Scope VARCHAR(255)
+        )
+    ''')
+
+    # Create table BridgeDomains if it does not exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS BridgeDomains (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            BDId VARCHAR(255) UNIQUE,
+            BDName VARCHAR(255),
+            VRF VARCHAR(255),
+            Scope VARCHAR(255)
+        )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS ApplicationProfiles (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        AppProfileId VARCHAR(255) UNIQUE,
+        AppProfileName VARCHAR(255),
+        TenantId VARCHAR(255),
+        Description VARCHAR(255),
         Scope VARCHAR(255)
     )
 ''')
+    
+    
     return cnx
 
 
