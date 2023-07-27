@@ -609,6 +609,7 @@ def subnetsbd():
     return render_template('subnetsbd.html', subnets=subnets, e=e)
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -639,17 +640,208 @@ def login():
     return render_template('login.html', e=e, error=error)
 
 
-# Display EPGs in fabric , by related Tenant with its health score and recent changes  ( Admin access )
-@app.route('/EPG')
+
+
+@app.route('/epgs', methods=['GET', 'POST'])
 def epgs():
+    if 'username' not in session:
+        return redirect('/login')
+    cursor = mycnx.cursor()
+    print("Calling all EPGs")
+    query = 'SELECT * FROM EPGs ORDER BY id'
+    cursor.execute(query)
+    epgs_data = cursor.fetchall()
+    print(epgs_data)
+    if request.method == 'POST':
+        print("POST request")
+        if request.form.get('refresh'):
+            print("Refreshing EPGs data")
+            # Retrieve the EPGs data from the APIC and store it in the database
+            token = get_token(apic_url, apic_username, apic_password)
+            get_epgs(token)
+            return redirect('/epgs')
+        elif request.form.get('logout'):
+            session.pop('username', None)
+            return redirect('/login')
+        elif request.form.get('home'):
+            return redirect('/')
+    return render_template('epgs.html', epgs_data=epgs_data)
 
-    return render_template('epgs.html')
 
-
-@app.route('/EPGdb')
+@app.route('/epgsdb', methods=['GET', 'POST'])
 def epgsdb():
+    e = None
+    cursor = mycnx.cursor()
+    try:
+        query = 'SELECT * FROM EPGs ORDER BY id'
+        cursor.execute(query)
+        epgs_data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        # Handle the error (if any) here
+        print("Error fetching EPGs:", e)
 
-    return render_template('epgsdb.html')
+    if request.form.get('exit'):
+        return redirect('/login')
+    elif request.form.get('home'):
+        return redirect('/limited')
+    return render_template('epgs.html', epgs_data=epgs_data, e=e)
+
+
+
+
+
+@app.route('/applicationprofiles', methods=['GET', 'POST'])
+def applicationprofiles():
+    if 'username' not in session:
+        return redirect('/login')
+    cursor = mycnx.cursor()
+    print("Calling all Application Profiles")
+    query = 'SELECT * FROM ApplicationProfiles ORDER BY id'
+    cursor.execute(query)
+    applicationprofiles_data = cursor.fetchall()
+    print(applicationprofiles_data)
+    if request.method == 'POST':
+        print("POST request")
+        if request.form.get('refresh'):
+            print("Refreshing Application Profiles data")
+            # Retrieve the Application Profiles data from the APIC and store it in the database
+            token = get_token(apic_url, apic_username, apic_password)
+            get_application_profiles(token)
+            return redirect('/applicationprofiles')
+        elif request.form.get('logout'):
+            session.pop('username', None)
+            return redirect('/login')
+        elif request.form.get('home'):
+            return redirect('/')
+    return render_template('applicationprofiles.html', applicationprofiles_data=applicationprofiles_data)
+
+
+
+
+@app.route('/appprofilesdb', methods=['GET', 'POST'])
+def appprofilesdb():
+    e = None
+    cursor = mycnx.cursor()
+    try:
+        query = 'SELECT * FROM ApplicationProfiles ORDER BY id'
+        cursor.execute(query)
+        app_profiles_data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        # Handle the error (if any) here
+        print("Error fetching Application Profiles:", e)
+
+    if request.form.get('exit'):
+        return redirect('/login')
+    elif request.form.get('home'):
+        return redirect('/limited')
+    return render_template('applicationprofiles.html', app_profiles_data=app_profiles_data, e=e)
+
+
+
+
+
+
+@app.route('/bridgedomains', methods=['GET', 'POST'])
+def bridgedomains():
+    if 'username' not in session:
+        return redirect('/login')
+    cursor = mycnx.cursor()
+    print("Calling all bridgedomains")
+    query = 'SELECT * FROM BridgeDomains ORDER BY id'
+    cursor.execute(query)
+    bridgedomains_data = cursor.fetchall()
+    print(bridgedomains_data)
+    if request.method == 'POST':
+        print("POST request")
+        if request.form.get('refresh'):
+            print("Refreshing bridgedomains data")
+            # Retrieve the BridgeDomains data from the APIC and store it in the database
+            token = get_token(apic_url, apic_username, apic_password)
+            get_bridge_domains(token)
+            return redirect('/bridgedomains')
+        elif request.form.get('logout'):
+            session.pop('username', None)
+            return redirect('/login')
+        elif request.form.get('home'):
+            return redirect('/')
+    return render_template('bridgedomains.html', bridgedomains_data=bridgedomains_data)
+
+
+
+@app.route('/bridgedomainsdb', methods=['GET', 'POST'])
+def bridgedomainsdb():
+    e = None
+    cursor = mycnx.cursor()
+    try:
+        query = 'SELECT * FROM BridgeDomains ORDER BY id'
+        cursor.execute(query)
+        bridgedomains_data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        # Handle the error (if any) here
+        print("Error fetching BridgeDomains:", e)
+
+    if request.form.get('exit'):
+        return redirect('/login')
+    elif request.form.get('home'):
+        return redirect('/limited')
+    return render_template('bridgedomains.html', bridgedomains_data=bridgedomains_data, e=e)
+
+
+
+
+
+@app.route('/tenants', methods=['GET', 'POST'])
+def tenants():
+    if 'username' not in session:
+        return redirect('/login')
+    cursor = mycnx.cursor()
+    print("Calling all tenants")
+    query = 'SELECT * FROM Tenants ORDER BY id'
+    cursor.execute(query)
+    tenants_data = cursor.fetchall()
+    print(tenants_data)
+    if request.method == 'POST':
+        print("POST request")
+        if request.form.get('refresh'):
+            print("Refreshing tenants data")
+            # Retrieve the Tenants data from the APIC and store it in the database
+            token = get_token(apic_url, apic_username, apic_password)
+            get_tenants(token)
+            return redirect('/tenants')
+        elif request.form.get('logout'):
+            session.pop('username', None)
+            return redirect('/login')
+        elif request.form.get('home'):
+            return redirect('/')
+    return render_template('tenants.html', tenants_data=tenants_data)
+
+
+
+
+
+
+@app.route('/tenantsdb', methods=['GET', 'POST'])
+def tenantsdb():
+    e = None
+    cursor = mycnx.cursor()
+    try:
+        query = 'SELECT * FROM Tenants ORDER BY id'
+        cursor.execute(query)
+        tenants_data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        # Handle the error (if any) here
+        print("Error fetching Tenants:", e)
+
+    if request.form.get('exit'):
+        return redirect('/login')
+    elif request.form.get('home'):
+        return redirect('/limited')
+    return render_template('tenants.html', tenants_data=tenants_data, e=e)
+
+
+
+
+
 
 
 # Define the main function to run the Flask app
