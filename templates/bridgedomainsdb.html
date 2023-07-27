@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Bridge Domains</h1>
+    <p>Access Type: Guest</p>
+    <p></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>BridgeDomain ID</th>
+                <th>BridgeDomain Name</th>
+                <th>VRF</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bd in bridgedomains_data %}
+            <tr>
+                <td>{{ bd[0] }}</td>
+                <td>{{ bd[1] }}</td>
+                <td>{{ bd[2] }}</td>
+                <td>{{ bd[3] }}</td>
+                <td>{{ bd[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

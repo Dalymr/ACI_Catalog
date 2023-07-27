@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>EPGs</h1>
+    <p>Access Type: Guest</p>
+    <p></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>EPG ID</th>
+                <th>EPG Name</th>
+                <th>Tenant ID</th>
+                <th>Health Score</th>
+                <th>Endpoint Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for epg in epgs_data %}
+            <tr>
+                <td>{{ epg[0] }}</td>
+                <td>{{ epg[1] }}</td>
+                <td>{{ epg[2] }}</td>
+                <td>{{ epg[3] }}</td>
+                <td>{{ epg[4] }}</td>
+                <td>{{ epg[5] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

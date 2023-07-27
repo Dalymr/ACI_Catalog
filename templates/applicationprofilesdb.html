@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Application Profiles</h1>
+    <p>Access Type: Admin</p>
+    <p></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ApplicationProfile ID</th>
+                <th>ApplicationProfile Name</th>
+                <th>Tenant ID</th>
+                <th>EPG ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app_prof in app_profiles_data %}
+            <tr>
+                <td>{{ app_prof[0] }}</td>
+                <td>{{ app_prof[1] }}</td>
+                <td>{{ app_prof[2] }}</td>
+                <td>{{ app_prof[3] }}</td>
+                <td>{{ app_prof[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
