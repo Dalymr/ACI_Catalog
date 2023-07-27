@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome to Endpointer!</h1>
+    <p id="Access">Access Type: Guest</p>
+    <p>This is the homepage. You can navigate to the endpoints and subnets pages using the links below.</p>
+    <p></p>
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{{ url_for('endpointsdb') }}">Endpoints</a></li>
+        <li class="list-group-item"><a href="{{ url_for('subnetsdb') }}">Subnets</a></li>
+        <li class="list-group-item"><a href="{{ url_for('epgsdb') }}">EPGs</a></li>
+        <li class="list-group-item"><a href="{{ url_for('applicationprofilesdb') }}">Application Profiles</a></li>
+        <li class="list-group-item"><a href="{{ url_for('tenantsdb') }}">Tenants</a></li>
+        <li class="list-group-item"><a href="{{ url_for('bridgedomainsdb') }}">Bridge Domains </a></li>
+        
+    </ul>
+</div>
+{% endblock %}
