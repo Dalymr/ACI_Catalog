@@ -7,12 +7,25 @@
     
     <style>
         /* Custom styles to resemble Cisco ACI 5.2 interface */
+        .form-control{
+            width: 200px;
+        }
+        .search-bar{
+            ;margin-right: 120px;
+          }
+          .search-bar .input-group-addon{
+          }
+          .search-bar .search-btn{
+            margin-left: 10px;
+            margin-right: 10px;
+            length:30px; 
+          }
         .btn-green {
             background-color: green;
             color: white;
         }
         .navbar-brand {
-            margin-left: 50px; /* Add this CSS rule */
+            margin-left: 20px; /* Add this CSS rule */
         }
         body {
             font-family: 'Ealing Regular', sans-serif;
@@ -35,11 +48,16 @@
         }
 
         .container {
-            margin-top: 150px;
+            margin-top: 100px;
             width: 60%;
             background-color: #ffffff;
-            position: relative;
             align-items: center;
+            
+        }
+
+        .loginform{
+            align-items:center;
+            
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -88,6 +106,23 @@
                 </li>
             </ul>
         </div>
+        <!-- Add the search bar -->
+        <div class="col-sm-6 pull-right">
+            <form class="form-inline my-2 my-lg-0" method="GET" action="/search">
+                <div class="input-group search-bar" >
+                    <input  class="form-control" id="txtSearch" name="query" placeholder="Type Here" aria-controls="example1" type="text"  />
+                    <span class="input-group-addon">
+                        <button class="btn btn-outline-success search-btn" type="submit" name="btnSubmit" value="Search" >Search
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        
+        
+
+        
     </nav>
 
     <div class="container-fluid">
