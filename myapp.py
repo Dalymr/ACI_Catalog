@@ -108,7 +108,6 @@ def initialize_database(host, username, password, database):
             EPGId VARCHAR(255) UNIQUE,
             EPGName VARCHAR(255),
             TenantId VARCHAR(255),
-            HealthScore FLOAT,
             EndpointCount INT
         )
     ''')
@@ -289,7 +288,7 @@ def get_epgs(token):
         epg_dn = epg_data['fvAEPg']['attributes']['dn']
         epg_name = epg_data['fvAEPg']['attributes']['name']
         tenant_id = epg_data['fvAEPg']['attributes']['dn'].split('/tn-')[1].split('/')[0]
-        health_score = epg_data['fvAEPg']['attributes']['healthScore']
+
         
         # Additional API call to retrieve endpoint count for each EPG
         endpoint_url = f"{apic_url}/api/class/fvCEp.json?query-target-filter=eq(fvCEp.epgDn,'{epg_dn}')"
@@ -312,16 +311,16 @@ def get_epgs(token):
         if existing_epg:
             # If the EPG already exists, update its attributes with the new information
             try:
-                cursor.execute("UPDATE EPGs SET id = %s, EPGName = %s, TenantId = %s, HealthScore = %s, EndpointCount = %s WHERE EPGId = %s",
-                               (next_id, epg_name, tenant_id, health_score, endpoint_count, epg_dn))
+                cursor.execute("UPDATE EPGs SET id = %s, EPGName = %s, TenantId = %s,  EndpointCount = %s WHERE EPGId = %s",
+                               (next_id, epg_name, tenant_id, endpoint_count, epg_dn))
             except mysql.connector.Error as e:
                 print("Error updating EPG:", e)
                 continue
         else:
             # If the EPG does not exist, insert it into the database
             try:
-                cursor.execute("INSERT INTO EPGs (id, EPGId, EPGName, TenantId, HealthScore, EndpointCount) VALUES (%s, %s, %s, %s, %s, %s)",
-                               (next_id, epg_dn, epg_name, tenant_id, health_score, endpoint_count))
+                cursor.execute("INSERT INTO EPGs (id, EPGId, EPGName, TenantId, EndpointCount) VALUES (%s, %s, %s, %s, %s)",
+                               (next_id, epg_dn, epg_name, tenant_id, endpoint_count))
             except mysql.connector.Error as e:
                 print("Error inserting EPG:", e)
                 continue
@@ -488,6 +487,28 @@ def get_tenants(token):
 
 
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if 'username' not in session:
+        return redirect('/login')
+    
+    query = request.args.get('query', '')  # Get the search query from the URL parameter
+
+    # Perform the search in the database
+    cursor = mycnx.cursor()
+    search_query = '''
+        SELECT * FROM endpoints 
+        WHERE IPEndpoint LIKE %s OR MAC LIKE %s OR RelEPG LIKE %s OR RelAPP LIKE %s OR relBD LIKE %s
+    '''
+    search_values = tuple(['%' + query + '%'] * 5)
+    cursor.execute(search_query, search_values)
+    search_results = cursor.fetchall()
+
+    return render_template('search_results.html', query=query, results=search_results)
+
+
+
+
 
 
 
@@ -568,10 +589,10 @@ def subnets():
 def exit():
     if request.method == 'POST' and request.form.get('exit'):
         return redirect('/login')
-    return render_template('indexbd.html')
+    return render_template('indexdb.html')
 
 
-@app.route('/endpointsbd', methods=['GET', 'POST'])
+@app.route('/endpointsdb', methods=['GET', 'POST'])
 def endpointsbd():  # sourcery skip: remove-unreachable-code
     e = None
     cursor = mycnx.cursor()
@@ -584,14 +605,14 @@ def endpointsbd():  # sourcery skip: remove-unreachable-code
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('endpointsbd.html', data=data, e=e)
+    return render_template('endpointsdb.html', data=data, e=e)
 
 
 
 
 
 
-@app.route('/subnetsbd', methods=['GET', 'POST'])
+@app.route('/subnetsdb', methods=['GET', 'POST'])
 def subnetsbd():
     e = None
     cursor = mycnx.cursor()
@@ -606,7 +627,7 @@ def subnetsbd():
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('subnetsbd.html', subnets=subnets, e=e)
+    return render_template('subnetsdb.html', subnets=subnets, e=e)
 
 
 
@@ -684,7 +705,7 @@ def epgsdb():
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('epgs.html', epgs_data=epgs_data, e=e)
+    return render_template('epgsdb.html', epgs_data=epgs_data, e=e)
 
 
 
@@ -734,7 +755,7 @@ def appprofilesdb():
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('applicationprofiles.html', app_profiles_data=app_profiles_data, e=e)
+    return render_template('applicationprofilesdb.html', app_profiles_data=app_profiles_data, e=e)
 
 
 
@@ -784,7 +805,7 @@ def bridgedomainsdb():
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('bridgedomains.html', bridgedomains_data=bridgedomains_data, e=e)
+    return render_template('bridgedomainsdb.html', bridgedomains_data=bridgedomains_data, e=e)
 
 
 
@@ -836,7 +857,7 @@ def tenantsdb():
         return redirect('/login')
     elif request.form.get('home'):
         return redirect('/limited')
-    return render_template('tenants.html', tenants_data=tenants_data, e=e)
+    return render_template('tenantsdb.html', tenants_data=tenants_data, e=e)
 
 
 
