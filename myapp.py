@@ -1,6 +1,6 @@
 
 """
-    The above code is a Flask web application that connects to an APIC (Application Policy
+    The below code is a Flask web application that connects to an APIC (Application Policy
     Infrastructure Controller) to retrieve endpoint and subnet data, stores it in a MySQL database, and
     displays it on different web pages.
     
@@ -9,6 +9,8 @@
     :return: The Flask app is being returned.
 """
 import requests
+import threading
+
 from flask import Flask, render_template, request, session, redirect
 from flask_bootstrap import Bootstrap
 import mysql.connector
@@ -56,13 +58,16 @@ def get_token(apic_url, username, password):
             }
         }
 
-        response = requests.post(login_url, json=login_payload, verify=False)
+        response = requests.post(login_url, json=login_payload, verify=False,timeout=2)
         print("token is fine")
         # time.sleep(2)  # Introduce a 2-second delay
         print("Connected!")
+        global token
         token = response.json()["imdata"][0]["aaaLogin"]["attributes"]["token"]
-    except Exception as e:
-        print(f"An unexpected error occurred during Authentification : {e}")
+        if not stop_thread_flag:
+            threading.Timer(10.0, get_token).start()
+    except Exception as authenerror:
+        print(f"An unexpected error occurred during Authentification ")
     return token
 
 
@@ -150,8 +155,9 @@ def initialize_database(host, username, password, database):
 
 
 # Get Endpoints from object Store and add them to Database
-def get_endpoints(token, force_refresh=False):
+def get_endpoints():
     cursor = mycnx.cursor()
+    global token
 
     # Send GET request to retrieve the endpoint data
     endpoint_url = f"{apic_url}/api/node/class/fvIp.json?&order-by=fvIp.modTs|desc"
@@ -227,7 +233,8 @@ def get_endpoints(token, force_refresh=False):
 
 
 
-def get_subnets(token):
+def get_subnets():
+    global token
     print("am i adding subnets ?")
     cursor = mycnx.cursor()
     # Send GET request to retrieve the endpoint data
@@ -274,7 +281,8 @@ def get_subnets(token):
 
 
 
-def get_epgs(token):
+def get_epgs():
+    global token
     cursor = mycnx.cursor()
     epg_url = f"{apic_url}/api/class/fvAEPg.json"
     headers = {
@@ -332,7 +340,8 @@ def get_epgs(token):
 
 
 
-def get_application_profiles(token):
+def get_application_profiles():
+    global token
     cursor = mycnx.cursor()
     app_profile_url = f"{apic_url}/api/class/fvAp.json"
     headers = {
@@ -386,7 +395,8 @@ def get_application_profiles(token):
 
 
 
-def get_bridge_domains(token):
+def get_bridge_domains():
+    global token
     cursor = mycnx.cursor()
     bd_url = f"{apic_url}/api/class/fvBD.json"
     headers = {
@@ -437,7 +447,8 @@ def get_bridge_domains(token):
 
 
 
-def get_tenants(token):
+def get_tenants():
+    global token
     cursor = mycnx.cursor()
     tenant_url = f"{apic_url}/api/class/fvTenant.json"
     headers = {
@@ -518,16 +529,18 @@ def search():
 def base():
     return render_template('base.html')
 
-
 @app.route('/')
 def index():
-    if 'username' not in session:
+    if 'username' not in session or 'username' in session == 'limited':
         return redirect('/login')
-    return render_template('index.html')
+    else:
+        return render_template('index.html')
 
 
 @app.route('/logout')
 def logout():
+    global stop_thread_flag
+    stop_thread_flag = True
     session.pop('username', None)
     return redirect('/login')
 
@@ -545,9 +558,8 @@ def endpoints():
     if request.method == 'POST':
         if request.form.get('refresh'):
             # Retrieve the endpoint data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
             print(" do i do this ?")
-            get_endpoints(token, force_refresh=True)
+            get_endpoints()
             return redirect('/endpoints')
         elif request.form.get('logout'):
             # Clear the session and redirect to the login page
@@ -573,9 +585,9 @@ def subnets():
         if request.form.get('refresh'):
             print("reeferessh")
             # Retrieve the subnets data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
+            
             print("calling get subnets")
-            get_subnets(token)
+            get_subnets()
             return redirect('/subnets')
         elif request.form.get('logout'):
             session.pop('username', None)
@@ -593,7 +605,7 @@ def exit():
 
 
 @app.route('/endpointsdb', methods=['GET', 'POST'])
-def endpointsbd():  # sourcery skip: remove-unreachable-code
+def endpointsdb():  # sourcery skip: remove-unreachable-code
     e = None
     cursor = mycnx.cursor()
     try:
@@ -613,7 +625,7 @@ def endpointsbd():  # sourcery skip: remove-unreachable-code
 
 
 @app.route('/subnetsdb', methods=['GET', 'POST'])
-def subnetsbd():
+def subnetsdb():
     e = None
     cursor = mycnx.cursor()
     print("are we subneting ? calling all subnets")
@@ -633,32 +645,36 @@ def subnetsbd():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error1 = None
     error = None
     e = None
     if request.method == 'POST':
         if request.form.get('limited') == 'limited':
+            session['username'] = 'limited'
             return redirect('/limited')
 
         username = request.form['username']
         password = request.form['password']
+        print("hehe")
         # Check if the credentials are correct
         try:
-            if username == apic_username and password == apic_password:
-                # Obtain an authentication token from the APIC
-                token = get_token(apic_url, apic_username, apic_password)
-                session['username'] = username
-                session['password'] = password
+          get_token(apic_url, username, password)
+        except requests.exceptions.RequestException as e:
+            error1 = 'Connection Error: Unable to connect to the APIC.'
+            print("hi")
+        if not(e):
+            session['username'] = username
+            session['password'] = password
+            print("hey")
+            return redirect('/')
+        else:
+            error = 'Invalid Credentials. Please try again.'
                 # Run the get_endpoints function to retrieve the endpoint data and store it in the database
                 # Redirect to the endpoints page
-                return redirect('/')
-            else:
-                error = 'Invalid Credentials. Please try again.'
-
-        except requests.exceptions.RequestException as e:
-            error = 'Connection Error: Unable to connect to the APIC.'
+            
 
     # Render the login.html template with the error message, if any
-    return render_template('login.html', e=e, error=error)
+    return render_template('login.html', e=e, error=error,error1=error1)
 
 
 
@@ -678,8 +694,8 @@ def epgs():
         if request.form.get('refresh'):
             print("Refreshing EPGs data")
             # Retrieve the EPGs data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
-            get_epgs(token)
+            
+            get_epgs()
             return redirect('/epgs')
         elif request.form.get('logout'):
             session.pop('username', None)
@@ -726,8 +742,8 @@ def applicationprofiles():
         if request.form.get('refresh'):
             print("Refreshing Application Profiles data")
             # Retrieve the Application Profiles data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
-            get_application_profiles(token)
+            
+            get_application_profiles()
             return redirect('/applicationprofiles')
         elif request.form.get('logout'):
             session.pop('username', None)
@@ -777,8 +793,8 @@ def bridgedomains():
         if request.form.get('refresh'):
             print("Refreshing bridgedomains data")
             # Retrieve the BridgeDomains data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
-            get_bridge_domains(token)
+            
+            get_bridge_domains()
             return redirect('/bridgedomains')
         elif request.form.get('logout'):
             session.pop('username', None)
@@ -826,8 +842,8 @@ def tenants():
         if request.form.get('refresh'):
             print("Refreshing tenants data")
             # Retrieve the Tenants data from the APIC and store it in the database
-            token = get_token(apic_url, apic_username, apic_password)
-            get_tenants(token)
+            
+            get_tenants()
             return redirect('/tenants')
         elif request.form.get('logout'):
             session.pop('username', None)
@@ -860,13 +876,16 @@ def tenantsdb():
     return render_template('tenantsdb.html', tenants_data=tenants_data, e=e)
 
 
-
+def before_first_request():
+    # Call the route function once before the first request is served
+    return ('/login')
 
 
 
 
 # Define the main function to run the Flask app
 if __name__ == '__main__':
+
     # Define the MySQL connection parameters
     mysql_host = 'localhost'
     mysql_username = 'root'
@@ -879,9 +898,6 @@ if __name__ == '__main__':
 
     # Define the APIC connection parameters
     apic_url = 'https://10.10.20.14'
-    apic_username = 'admin'
-    apic_password = 'C1sco12345'
-
     app.secret_key = 'mysecretkey'
     # Run the Flask app
     app.run(debug=True)
