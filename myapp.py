@@ -9,7 +9,7 @@
 """
 import requests
 import threading
-
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, session, redirect
 from flask_bootstrap import Bootstrap
 import mysql.connector
@@ -17,6 +17,8 @@ import urllib3
 import ipaddress
 from acitoolkit import Tenant
 import logging
+import os
+
 
 app = Flask(__name__)
 
@@ -65,102 +67,153 @@ def get_token(apic_url, username, password):
 
         response = requests.post(login_url, json=login_payload, verify=False, timeout=2)
         print("token is fine")
-        # time.sleep(2)  # Introduce a 2-second delay
         print("Connected!")
         global token
         token = response.json()["imdata"][0]["aaaLogin"]["attributes"]["token"]
         if not stop_thread_flag:
-            threading.Timer(10.0, get_token).start()
+            threading.Timer(60.0, get_token).start()  # Relocate token each 60 sec
     except Exception as authenerror:
         print(f"An unexpected error occurred during Authentification ")
-    return token
+    if authenerror:
+        return None
+    else:
+        return token
+
+
+# Initialize the MySQL database connection
+def get_database_connection():
+    # Connect to MySQL server to create the database (use a temporary connection)
+    temp_connection = mysql.connector.connect(
+        host=mysql_host, user=mysql_username, password=mysql_password
+    )
+    temp_cursor = temp_connection.cursor()
+
+    # Create the database if it doesn't exist
+    temp_cursor.execute(f"CREATE DATABASE IF NOT EXISTS {mysql_database}")
+    temp_connection.commit()
+
+    # Close the temporary connection and cursor
+    temp_cursor.close()
+    temp_connection.close()
+
+    try:
+        mycnx = mysql.connector.connect(
+            host=mysql_host,
+            user=mysql_username,
+            password=mysql_password,
+            database=mysql_database,
+        )
+        return mycnx
+    except mysql.connector.Error as e:
+        # Handle database connection errors
+        print("Error connecting to the database:", e)
+        return None
+    
 
 
 # Connect to MySQL and initialize cursor
-def initialize_database(host, username, password, database):
-    cnx = mysql.connector.connect(
-        host=mysql_host,
-        user=mysql_username,
-        password=mysql_password,
-        database=mysql_database,
-    )
-    cursor = cnx.cursor()
-    # Create table endpoints if it does not exist
-    cursor.execute(
+def initialize_database():
+    try:
+        cursor = mycnx.cursor()
+    except mysql.connector.Error as e:
+        # Handle database connection error
+        logging.error("Error connecting to the database: %s", e)
+        return None
+        # Create table endpoints if it does not exist
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS endpoints (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                IPEndpoint VARCHAR(255) UNIQUE,
+                MAC VARCHAR(255),
+                RelEPG VARCHAR(255),
+                RelAPP VARCHAR(255),
+                relBD VARCHAR(255)
+            )
         """
-        CREATE TABLE IF NOT EXISTS endpoints (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            IPEndpoint VARCHAR(255) UNIQUE,
-            MAC VARCHAR(255),
-            RelEPG VARCHAR(255),
-            RelAPP VARCHAR(255),
-            relBD VARCHAR(255)
         )
-    """
-    )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'endpoints': %s", e)
     # Create table subnets if it does not exist
-    cursor.execute(
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS subnets (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                IPsubnet VARCHAR(255) UNIQUE,
+                BD VARCHAR(255),
+                Tenant VARCHAR(255),
+                Scope VARCHAR(255)
+            )
         """
-        CREATE TABLE IF NOT EXISTS subnets (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            IPsubnet VARCHAR(255) UNIQUE,
-            BD VARCHAR(255),
-            Tenant VARCHAR(255),
-            Scope VARCHAR(255)
         )
-    """
-    )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'subnets': %s", e)
     # Create table EPGs if it does not exist
-    cursor.execute(
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS EPGs (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                EPGId VARCHAR(255) UNIQUE,
+                EPGName VARCHAR(255),
+                TenantId VARCHAR(255),
+                EndpointCount INT
+            )
         """
-        CREATE TABLE IF NOT EXISTS EPGs (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            EPGId VARCHAR(255) UNIQUE,
-            EPGName VARCHAR(255),
-            TenantId VARCHAR(255),
-            EndpointCount INT
         )
-    """
-    )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'EPGs': %s", e)
     # Create table Tenants if it does not exist
-    cursor.execute(
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS Tenants (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                TenantId VARCHAR(255) UNIQUE,
+                TenantName VARCHAR(255),
+                Description VARCHAR(255),
+                Scope VARCHAR(255)
+            )
         """
-        CREATE TABLE IF NOT EXISTS Tenants (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            TenantId VARCHAR(255) UNIQUE,
-            TenantName VARCHAR(255),
-            Description VARCHAR(255),
-            Scope VARCHAR(255)
         )
-    """
-    )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'Tenants': %s", e)
     # Create table BridgeDomains if it does not exist
-    cursor.execute(
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS BridgeDomains (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                BDId VARCHAR(255) UNIQUE,
+                BDName VARCHAR(255),
+                VRF VARCHAR(255),
+                Scope VARCHAR(255)
+            )
         """
-        CREATE TABLE IF NOT EXISTS BridgeDomains (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            BDId VARCHAR(255) UNIQUE,
-            BDName VARCHAR(255),
-            VRF VARCHAR(255),
-            Scope VARCHAR(255)
         )
-    """
-    )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'BridgeDomains': %s", e)
     # Create table ApplicationProfiles if it does not exist
-    cursor.execute(
+    try:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS ApplicationProfiles (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                AppProfileId VARCHAR(255) UNIQUE,
+                AppProfileName VARCHAR(255),
+                TenantId VARCHAR(255),
+                Description VARCHAR(255),
+                Scope VARCHAR(255)
+            )
         """
-    CREATE TABLE IF NOT EXISTS ApplicationProfiles (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        AppProfileId VARCHAR(255) UNIQUE,
-        AppProfileName VARCHAR(255),
-        TenantId VARCHAR(255),
-        Description VARCHAR(255),
-        Scope VARCHAR(255)
-    )
-"""
-    )
-    # Returs MySQL connection
-    return cnx
+        )
+    except mysql.connector.Error as e:
+        logging.error("Error creating table 'ApplicationProfiles': %s", e)
+
+    # Commit the changes to the database and return the MySQL connection
+    mycnx.commit()
 
 
 """
@@ -581,8 +634,12 @@ This is a Flask route handler for the root URL ("/"). It checks if the "username
 
 @app.route("/")
 def index():
-    if "username" not in session or "username" in session == "limited":
+    if myenv == False:
+        return redirect("/setup")
+    if "authenticated" not in session:
         return redirect("/login")
+    elif not session["authenticated"]:
+        return redirect("/limited")
     else:
         return render_template("index.html")
 
@@ -596,7 +653,7 @@ This function is a route handler for the "/logout" endpoint in a Flask applicati
 def logout():
     global stop_thread_flag
     stop_thread_flag = True
-    session.pop("username", None)
+    session.pop("authenticated", None)
     return redirect("/login")
 
 
@@ -607,7 +664,7 @@ This is a Flask route function that handles GET and POST requests to the "/endpo
 
 @app.route("/endpoints", methods=["GET", "POST"])
 def endpoints():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
     print("logged in")
     cursor = mycnx.cursor()
@@ -623,7 +680,7 @@ def endpoints():
             return redirect("/endpoints")
         elif request.form.get("logout"):
             # Clear the session and redirect to the login page
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -637,7 +694,7 @@ This is a Flask route function that handles GET and POST requests to the "/subne
 
 @app.route("/subnets", methods=["GET", "POST"])
 def subnets():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
     cursor = mycnx.cursor()
     print("are we subneting ? calling all subnets")
@@ -655,7 +712,7 @@ def subnets():
             get_subnets()
             return redirect("/subnets")
         elif request.form.get("logout"):
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -669,6 +726,8 @@ This is a Flask route handler for the "/limited" endpoint. It handles both GET a
 
 @app.route("/limited", methods=["GET", "POST"])
 def exit():
+    if myenv == False:
+        return redirect("/setup")
     if request.method == "POST" and request.form.get("exit"):
         return redirect("/login")
     return render_template("indexdb.html")
@@ -726,12 +785,13 @@ This is a Flask route function that handles GET and POST requests to the '/login
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error1 = None
+    if myenv == False:
+        return redirect("/setup")
     error = None
-    e = None
+    e = None  # Initialize 'e' to None
     if request.method == "POST":
         if request.form.get("limited") == "limited":
-            session["username"] = "limited"
+            session["authenticated"] = False
             return redirect("/limited")
 
         username = request.form["username"]
@@ -740,21 +800,20 @@ def login():
         # Check if the credentials are correct
         try:
             get_token(apic_url, username, password)
-        except requests.exceptions.RequestException as e:
-            error1 = "Connection Error: Unable to connect to the APIC."
+        except Exception as ex:
             print("hi")
-        if not (e):
-            session["username"] = username
-            session["password"] = password
+            e = ex  # Assign the exception to 'e'
+        if not e:
+            session["authenticated"] = True
             print("hey")
             return redirect("/")
         else:
-            error = "Invalid Credentials. Please try again."
-            # Run the get_endpoints function to retrieve the endpoint data and store it in the database
-            # Redirect to the endpoints page
+            error = (
+                "Unable to connect to the APIC. Check your credentials and try again."
+            )
 
     # Render the login.html template with the error message, if any
-    return render_template("login.html", e=e, error=error, error1=error1)
+    return render_template("login.html", error=error)
 
 
 """
@@ -764,7 +823,7 @@ This is a Flask route function that handles GET and POST requests to the '/epgs'
 
 @app.route("/epgs", methods=["GET", "POST"])
 def epgs():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
     cursor = mycnx.cursor()
     print("Calling all EPGs")
@@ -781,7 +840,7 @@ def epgs():
             get_epgs()
             return redirect("/epgs")
         elif request.form.get("logout"):
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -819,7 +878,7 @@ This is a Flask route function that handles GET and POST requests for the '/appl
 
 @app.route("/applicationprofiles", methods=["GET", "POST"])
 def applicationprofiles():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
     cursor = mycnx.cursor()
     print("Calling all Application Profiles")
@@ -836,7 +895,7 @@ def applicationprofiles():
             get_application_profiles()
             return redirect("/applicationprofiles")
         elif request.form.get("logout"):
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -878,7 +937,7 @@ This code snippet handles a request to the '/bridgedomains' route. It first chec
 
 @app.route("/bridgedomains", methods=["GET", "POST"])
 def bridgedomains():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
 
     cursor = mycnx.cursor()
@@ -896,7 +955,7 @@ def bridgedomains():
             get_bridge_domains()
             return redirect("/bridgedomains")
         elif request.form.get("logout"):
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -935,7 +994,7 @@ This is a Flask route function that handles GET and POST requests for the '/tena
 
 @app.route("/tenants", methods=["GET", "POST"])
 def tenants():
-    if "username" not in session:
+    if "authenticated" not in session or not session["authenticated"]:
         return redirect("/login")
     cursor = mycnx.cursor()
     print("Calling all tenants")
@@ -951,7 +1010,7 @@ def tenants():
             get_tenants()
             return redirect("/tenants")
         elif request.form.get("logout"):
-            session.pop("username", None)
+            session.pop("authenticated", None)
             return redirect("/login")
         elif request.form.get("home"):
             return redirect("/")
@@ -983,6 +1042,41 @@ def tenantsdb():
 
 
 """
+This is a Flask route that handles a GET and POST request to "/setup". 
+If the request method is POST, it retrieves the values from the form fields (mysql_host, mysql_username, mysql_password, apic_url, apic_username, apic_password) and writes them to a file. 
+"""
+
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    if request.method == "POST":
+        # Get the form data submitted by the user
+        mysql_host = request.form.get("mysql_host")
+        mysql_username = request.form.get("mysql_username")
+        mysql_password = request.form.get("mysql_password")
+        apic_url = request.form.get("apic_url")
+        apic_username = request.form.get("apic_username")
+        apic_password = request.form.get("apic_password")
+
+        # Save the form data to the .env file
+        with open(".env", "w") as f:
+            f.write(f"MYSQL_HOST={mysql_host}\n")
+            f.write(f"MYSQL_USERNAME={mysql_username}\n")
+            f.write(f"MYSQL_PASSWORD={mysql_password}\n")
+            f.write(f"APIC_URL={apic_url}\n")
+            f.write(f"APIC_USERNAME={apic_username}\n")
+            f.write(f"APIC_PASSWORD={apic_password}\n")
+
+        # Redirect to the homepage or another page after setup
+        global myenv
+        myenv = True
+        return redirect("/login")
+
+    # Render the setup.html template for the user to enter the data
+    return render_template("setup.html")
+
+
+"""
 This function is a decorator that registers a function to be executed before the first request is handled by the server.
 """
 
@@ -995,20 +1089,37 @@ def before_first_request():
 """
 This code snippet is the main entry point of the application. It initializes the database connection, sets up the API URL and secret key, and starts the application in debug mode.
 """
+
 if __name__ == "__main__":
-    # Define the MySQL connection parameters
-    mysql_host = "localhost"
-    mysql_username = "root"
-    mysql_password = "myadmin1502"
-    mysql_database = "endpointer"
-
-    # Initialize the MySQL database connection
-    mycnx = initialize_database(
-        mysql_host, mysql_username, mysql_password, mysql_database
-    )
-
-    # Define the APIC connection parameters
-    apic_url = "https://10.10.20.14"
+    # Set the secret key for the application
     app.secret_key = "mysecretkey"
-    # Run the Flask app
+    global myenv
+    myenv = True
+    try:
+        # Check if the .env file exists
+        if not os.path.exists(".env"):
+            print("hello")
+            # Raise an HTTP 404 error
+            raise FileNotFoundError(
+                "The .env file is missing. Please create the .env file and set up the environment variables."
+            )
+        # Load environment variables from .env file
+        load_dotenv()
+
+        # Define the MySQL connection parameters
+        mysql_host = os.getenv("MYSQL_HOST")
+        mysql_username = os.getenv("MYSQL_USERNAME")
+        mysql_password = os.getenv("MYSQL_PASSWORD")
+        mysql_database = "endpointer"
+
+        # Define the APIC connection parameters
+        apic_url = os.getenv("APIC_URL")
+        # Initialize the MySQL database connection
+        mycnx = get_database_connection()
+
+
+
+    except FileNotFoundError as e:
+        print("FileNotFoundError:", e)
+        myenv = False
     app.run(debug=True)
