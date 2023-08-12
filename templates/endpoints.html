@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <h2>Endpoints Page</h2>
+    <h2>Learned Endpoints</h2>
     <p id="Access">Access Type: Admin</p>
     <p></p>
     <table class="table">
@@ -12,8 +12,9 @@
                 <th>IP Endpoint</th>
                 <th>MAC Address</th>
                 <th>EPG</th>
-                <th>Application</th>
+                <th>Application Profile</th>
                 <th>Bridge Domain</th>
+                <th>Dn</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,7 @@
                     <td>{{ item[3] }}</td>
                     <td>{{ item[4] }}</td>
                     <td>{{ item[5] }}</td>
+                    <td>{{ item[6] }}</td>
                 </tr>
             {% endfor %}
         </tbody>

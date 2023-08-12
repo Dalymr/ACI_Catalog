@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-    <h1>Subnets</h1>
+    <h1>Subnets (Fabric)</h1>
     <p>Access Type: Guest</p>
     <p></p>
     {% if e %}
@@ -13,9 +13,10 @@
             <tr>
                 <th>ID</th>
                 <th>IP Subnet</th>
-                <th>BD</th>
+                <th>Bridge Domain</th>
                 <th>Tenant</th>
                 <th>Scope</th>
+                <th>Dn</th>
             </tr>
         </thead>
         <tbody>
@@ -26,6 +27,7 @@
                 <td>{{ subnet[2] }}</td>
                 <td>{{ subnet[3] }}</td>
                 <td>{{ subnet[4] }}</td>
+                <td>{{ subnet[5] }}</td>
             </tr>
             {% endfor %}
         </tbody>
