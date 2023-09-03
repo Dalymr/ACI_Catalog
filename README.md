@@ -17,7 +17,7 @@ Enhance data security and compliance through advanced access control measures.
 2) Install the requirement package pip install -r requirements.txt 
     Install Python if dosent exist ofcourse :D
 3) Run the project :                                                                              
-    cd Endpointer-1.0.0                                                                            
+    cd ACI_Catalog-1.0.0                                                                            
     python myapp.py                                                                                   
 4) Open browser and type localhost:5000                                                                            
 
