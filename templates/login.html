@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>Login as Admin</h1>
+<div style=" margin-top:140px" class="  center-container container-fluid">
+    <h1 class="center-container">Login</h1>
     <p></p>
     {% if error %}
     <p class="alert alert-danger">{{ error }}</p>
     {% endif %}
-    <form class="loginform" method="POST">
+    <form class=" loginform" method="POST">
         <div class="mb-3">
             <label for="username" class="form-label">Username:</label>
             <input type="text" class="form-control" id="username" name="username">
@@ -16,6 +16,11 @@
             <label for="password" class="form-label">Password:</label>
             <input type="password" class="form-control" id="password" name="password">
         </div>
+        <div class="mb-3">
+            <label for="APICURL" class="form-label">APIC URL:</label>
+            <input type="text" class="form-control" id="apicurl" name="apicurl" value="https://">
+        </div>
+        <p></p>
         <button type="submit" class="btn btn-green" name="Login" value="login">Login</button>
         <button type="submit" class="btn btn-secondary" name="limited" value="limited">Limited Access (Guest)</button>
     </form>

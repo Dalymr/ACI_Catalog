@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>About This Project</h1>
+    <p>This project is the result of an internship with Ooredoo Tunisia.</p>
+    <p>Ooredoo Tunisia is a leading telecommunications company dedicated to providing high-quality services and innovative solutions to its customers. This internship project is a part of our commitment to improving and enhancing our services.</p>
+    <h2>What Our Platform Does</h2>
+    <p>Our platform is designed to provide efficient management and retrieval of critical network data. It enables users to:</p>
+    <ul>
+        <li>Retrieve information about endpoints, subnets, EPGs, tenants, bridgedomains, interfaces, and more.</li>
+        <li>Monitor and analyze network statistics and performance metrics.</li>
+        <li>Streamline network management tasks to improve operational efficiency.</li>
+        <li>Enhance data security and compliance through advanced access control measures.</li>
+    </ul>
+    <p>We hope that this project will contribute to the continued success and growth of Ooredoo Tunisia, empowering its teams to make data-driven decisions and ensure the optimal performance of our network infrastructure.</p>
+    <p>Thank you for your interest and support.</p>
+    <p>Made By Med Ali Marouane, Iset'Com Tunis Student </p>
+    <!-- Centered logos -->
+    <div class="d-flex justify-content-center align-items-center mt-4">
+        <div class="pr-3 mx-auto">
+            <img src="{{ url_for('static', filename='assets/ooredoologo.png') }}" alt="Ooredoo Logo">
+        </div>
+        <div class="pl-3 mx-auto">
+            <img src="{{ url_for('static', filename='assets/isetlogo.png') }}" alt="Iset'Com Logo">
+        </div>
+    </div>
+</div>
+{% endblock %}

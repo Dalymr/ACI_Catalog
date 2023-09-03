@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Results</h1>
+    <p>Access Type: Admin</p>
+    <p></p>
+    <p>Details for the endpoint : {{ query }}</p>
+    <p></p>
+    <p></p>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Related Subnet</td>
+                <td>{{ searched_subnet }}</td>
+            </tr>
+            {% if results %}
+            {% for result in results %}
+            <tr>
+                <td>EPG</td>
+                <td>{{ result[0] }}</td>
+            </tr>            <tr>
+                <td>Bridge Domain</td>
+                <td>{{ result[1] }}</td>
+            </tr>            <tr>
+                <td>Mac Address</td>
+                <td>{{ result[2] }}</td>
+            </tr>            <tr>
+                <td>App Profile</td>
+                <td>{{ result[3] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="6">No Results</td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

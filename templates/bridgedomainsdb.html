@@ -5,25 +5,28 @@
     <h1>Bridge Domains</h1>
     <p>Access Type: Guest</p>
     <p></p>
-    <table class="table">
+    <table class="table"  id ="mytable" >
         <thead>
             <tr>
                 <th>ID</th>
-                <th>BridgeDomain ID</th>
                 <th>Name</th>
-                <th>VRF</th>
-                <th>Dn</th>
+                <th>Type</th>
+                <th>ip Learning</th>
+                <th>bpCast</th>
+                <th>Tenant</th>
+
             </tr>
         </thead>
         <tbody>
-            {% for bd in bridgedomains_data %}
-            <tr>
-                <td>{{ bd[0] }}</td>
-                <td>{{ bd[1] }}</td>
-                <td>{{ bd[2] }}</td>
-                <td>{{ bd[3] }}</td>
-                <td>{{ bd[4] }}</td>
-            </tr>
+            {% for item in bridgedomains_data %}
+                <tr>
+                    <td>{{ item[0] }}</td>
+                    <td><a href="{{ url_for('get_dets_bd', query=item[1]) }}" class="custom-link" >{{ item[1] }}</a></td>
+                    <td>{{ item[2] }}</td>
+                    <td>{{ item[3] }}</td>
+                    <td>{{ item[4] }}</td>
+                    <td>{{ item[5] }}</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>

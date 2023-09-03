@@ -1,0 +1,136 @@
+   /* ... your existing styles ... */
+  
+          /* Style for the footer */
+/* Style for the footer */
+.footer {
+    background-color: #b21414;
+    color: white;
+    text-align: center;
+    padding: 4px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    
+}
+
+
+a {
+    text-decoration: none; /* Remove underline */
+    color: #ff0000; /* Use the color of the parent element */
+}
+
+.brand_primary {
+    color: white;
+    font-size: 30px;
+    padding: 5px;
+    font-weight: bold; /* Corrected property */
+}
+      /* Custom styles to resemble Cisco ACI 5.2 interface */
+      .ip-list {
+          height: 150px; /* Set the desired height */
+          overflow-y: scroll;
+          border: 1px solid #ccc;
+          padding: 5px;
+      }    
+      .form-control {
+          min-width: 70%;
+      }
+      .search-bar {
+          margin-right: 120px;
+      }
+      .search-bar .search-btn {
+          margin-left: 10px;
+          margin-right: 10px;
+      }
+      .btn-green {
+          background-color: green;
+          color: white;
+      }
+      .navbar-brand {
+          margin-left: 20px; /* Add this CSS rule */
+      }
+      .navbar {
+          background-color: #b21414;
+          border-bottom: 1px solid #ccc;
+          flex-direction: column; /* Change flex-direction to column */
+      }
+      .navbar-nav .nav-link {
+          color: #fff; /* Change link color */
+          padding: 10px; /* Add padding to links for better spacing */
+      }
+      .container {
+          margin-top: 100px;
+          width: 60%;
+          background-color: #ffffff;
+          align-items: center;
+          margin-bottom: 40px;
+      }
+      .container-fluid {
+          margin-top: 20px;
+          width: 80%;
+          background-color: #ffffff;
+      }
+      h1, h2, h3, h4, h5, h6 {
+          font-weight: bold;
+      }
+      table {
+          background-color: #fff;
+          border: 1px solid #ed1b24;
+          border-collapse: collapse;
+          width: 100%;
+      }
+      th, td {
+          padding: 10px;
+          text-align: left;
+          border: 1px solid #ccc;
+      }
+      button.btn-primary {
+          background-color: #ed1b24;
+          border-color: #007bff;
+      }
+  /* Style the search button */
+  button.searchbar {
+      background-color: #ed1b24; /* Red background */
+      border-color: #fff; /* Red border */
+      color: #fff; /* White text */
+  }
+  
+  /* Change the styles when the button is hovered */
+  button.searchbar:hover {
+      background-color: #fff; /* White background */
+      border-color:#ed1b24; /* Red border */
+      color: #ed1b24; /* Red text */
+  }
+
+  .usernamefoot{
+    text-decoration-color: black;
+  }
+  
+  
+  body {
+      padding-top: 70px; /* Adjust this value as needed */
+  }
+  .navbar-logo {
+      max-height: 21px; /* Adjust the height as needed */
+      font-size:  11px}
+
+.loggedin {
+    margin-left: 80%;
+}
+.sqldotred{
+    margin-left:-44.7%;
+}
+
+.sqldotgreen{
+    margin-left:-32.7%;
+}
+
+  .center-container {
+    display: ruby;
+    justify-content: center;
+    align-items: center;
+    max-width: 40%; /* Ensures the container takes up the full viewport height */
+}
+.homepagenote{
+    font-size: small;
+}

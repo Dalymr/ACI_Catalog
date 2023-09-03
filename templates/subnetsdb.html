@@ -8,7 +8,7 @@
     {% if e %}
     <p>{{ e }}</p>
     {% endif %}
-    <table class="table">
+    <table class="table"  id ="mytable" >
         <thead>
             <tr>
                 <th>ID</th>
@@ -16,27 +16,21 @@
                 <th>Bridge Domain</th>
                 <th>Tenant</th>
                 <th>Scope</th>
-                <th>Dn</th>
             </tr>
         </thead>
         <tbody>
             {% for subnet in subnets %}
             <tr>
                 <td>{{ subnet[0] }}</td>
-                <td>{{ subnet[1] }}</td>
+                <td><a href="{{ url_for('get_dets_subnet', query=subnet[1]) }}" class="custom-link" >{{ subnet[1] }}</a></td>
                 <td>{{ subnet[2] }}</td>
-                <td>{{ subnet[3] }}</td>
+                <td>{{ subnet[3] }}</td>             
                 <td>{{ subnet[4] }}</td>
-                <td>{{ subnet[5] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     <p></p>
     <p></p>
-    <form method="post">
-        <button class="btn btn-secondary" type="submit" name="home" value="home">Home</button>
-        <button class="btn btn-danger" type="submit" name="exit" value="exit">Exit</button>
-    </form>
 </div>
 {% endblock %}

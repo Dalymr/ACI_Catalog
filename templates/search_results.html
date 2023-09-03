@@ -5,11 +5,14 @@
     <h1>Search Results</h1>
     <p>Access Type: Admin</p>
     <p></p>
-    <p>Search query for: {{ query }}</p>
     <p></p>
     <p></p>
-    <table class="table">
+    <table class="table" >
         <tbody>
+            {% if entry == "noentry" %}
+            <p>Search query empty, please try again</p>
+            {% elif entry == "end" %}
+            <p>Search query for {{ query }} is the endpoint :</p>
             <tr>
                 <th>ID</th>
                 <th>IP Endpoint</th>
@@ -18,9 +21,97 @@
                 <th>Application</th>
                 <th>Bridge Domain</th>
             </tr>
-            {% if results %}
             {% for result in results %}
             
+                <tr>
+                    <td>{{ result[0] }}</td>
+                    <td><a href="{{ url_for('get_dets_endpoint', query=result[1]) }}" class="custom-link" >{{ result[1] }}</a></td>
+                    <td>{{ result[2] }}</td>
+                    <td>{{ result[3] }}</td>
+                    <td>{{ result[4] }}</td>
+                    <td>{{ result[5] }}</td>
+                </tr>
+            {% endfor %}
+
+            {% elif entry == "subnet" %}
+            <p>Search query for {{ query }} is the subnet :</p>
+            <tr>
+                <th>ID</th>
+                <th>IP Subnet</th>
+                <th>Bridge Domain</th>
+                <th>Tenant</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result[0] }}</td>
+                <td><a href="{{ url_for('get_dets_subnet', query=result[1]) }}" class="custom-link" >{{ result[1] }}</a></td>
+                <td>{{ result[2] }}</td>
+                <td>{{ result[3] }}</td>
+                <td>{{ result[4] }}</td>
+            </tr>
+            {% endfor %}
+            {% elif entry == "bd" %}
+            <p>Search query for {{ query }} is the Bridge Domain :</p>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>ip Learning</th>
+                <th>bpCast</th>
+                <th>Tenant</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result[0] }}</td>
+                    <td><a href="{{ url_for('get_dets_bd', query=result[1]) }}" class="custom-link" >{{ result[1] }}</a></td>
+                    <td>{{ result[2] }}</td>
+                    <td>{{ result[3] }}</td>
+                    <td>{{ result[4] }}</td>
+                    <td>{{ result[5] }}</td>
+                </tr>
+            {% endfor %}
+            {% elif entry == "epg" %}
+            <p>Search query for {{ query }} is the EPG :</p>
+            <tr>
+                <th>ID</th>
+                <th>EPG Name</th>
+                <th>Tenant</th>
+                <th>Health Score</th>
+                <th>Endpoint Count</th>
+                <th>App Prof</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result[0] }}</td>
+                    <td><a href="{{ url_for('get_dets_epg', query=result[1]) }}" class="custom-link" >{{ result[1] }}</a></td>
+                    <td>{{ result[2] }}</td>
+                    <td>{{ result[3] }}</td>
+                    <td>{{ result[4] }}</td>
+                    <td>{{ result[5] }}</td>
+                </tr>
+            {% endfor %}
+            {% elif entry == "inter" %}
+            <p>Search query for {{ query }} is the interface :</p>
+            <tr>
+                <th>ID</th>
+                <th>Port name</th>
+                <th>Usages</th>
+                <th>Speed</th>>
+                <th>layer</th>
+                <th>AdminStatus</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
                 <tr>
                     <td>{{ result[0] }}</td>
                     <td>{{ result[1] }}</td>
@@ -28,6 +119,27 @@
                     <td>{{ result[3] }}</td>
                     <td>{{ result[4] }}</td>
                     <td>{{ result[5] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+            {% elif entry == "tenant" %}
+            <p>Search query for {{ query }} is the Tenant :</p>
+            <tr>
+                <th>ID</th>
+                <th>Tenant ID</th>
+                <th>Tenant Name</th>
+                <th>Description</th>
+                <th>Scope</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result[0] }}</td>
+                    <td>{{ result[1] }}</td>
+                    <td>{{ result[2] }}</td>
+                    <td>{{ result[3] }}</td>
+                    <td>{{ result[4] }}</td>
                 </tr>
             {% endfor %}
         {% else %}

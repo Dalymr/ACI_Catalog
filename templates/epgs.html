@@ -2,25 +2,26 @@
 
 {% block content %}
 <div class="container">
-    <h2>EPGs Page</h2>
+    <h2>EPGs</h2>
     <p id="Access">Access Type: Admin</p>
     <p></p>
-    <table class="table">
+    <table class="table"  id ="mytable" >
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Dn</th>
                 <th>EPG Name</th>
                 <th>Tenant</th>
                 <th>Health Score</th>
-                <th>Endpoint Count</th>
+                <th>Endpoint Count</th><
+                <th>App Prof</th>
+
             </tr>
         </thead>
         <tbody>
             {% for item in epgs_data %}
                 <tr>
                     <td>{{ item[0] }}</td>
-                    <td>{{ item[1] }}</td>
+                    <td><a href="{{ url_for('get_dets_epg', query=item[1]) }}" class="custom-link" >{{ item[1] }}</a></td>
                     <td>{{ item[2] }}</td>
                     <td>{{ item[3] }}</td>
                     <td>{{ item[4] }}</td>

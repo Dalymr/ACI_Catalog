@@ -1,136 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Endpointer{% endblock %}</title>
+    <title>{% block title %}ACI Catalog{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ealing+Regular&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="/static/assets/acilogo.jpg" type="image/x-icon">
+
+    <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+  />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  
+  <script>
+      $(document).ready(function () {
+        $('#mytable').DataTable();
+      });
+    </script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            // Attach a click event to navigation links
+            $('ajax').click(function (event) {// Prevent default link behavior
+
+                // Get the URL from the link's 'href' attribute
+                var url = $(this).attr('href');
+
+                // Load the content from the URL using AJAX and update 'main-content'
+                $('#main-content').load(url);
+            });
+        });
+    </script>
+
+
     
-    <style>
-        /* Custom styles to resemble Cisco ACI 5.2 interface */
-        .form-control{
-            width: 200px;
-        }
-        .search-bar{
-            ;margin-right: 120px;
-          }
-          .search-bar .input-group-addon{
-          }
-          .search-bar .search-btn{
-            margin-left: 10px;
-            margin-right: 10px;
-            length:30px; 
-          }
-        .btn-green {
-            background-color: green;
-            color: white;
-        }
-        .navbar-brand {
-            margin-left: 20px; /* Add this CSS rule */
-        }
-        body {
-            font-family: 'Ealing Regular', sans-serif;
-            font-color: #ffffff;
-            background-color: #ffffff;
-        }
-
-        .navbar {
-            background-color: #b21414;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .navbar-nav .nav-link {
-            color: #333;
-        }
-
-        .container {
-            margin-top: 100px;
-            width: 60%;
-            background-color: #ffffff;
-            align-items: center;
-            
-        }
-
-        .loginform{
-            align-items:center;
-            
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: bold;
-        }
-
-        table {
-            background-color: #fff;
-            border: 1px solid #ed1b24;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ccc;
-        }
-
-        button.btn-primary {
-            background-color: #ed1b24;
-            border-color: #007bff;
-        }
-
-        /* Additional custom styles if needed */
-
-    </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="#">Endpointer App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                </li>
-            </ul>
-        </div>
-        <!-- Add the search bar -->
-        <div class="col-sm-6 pull-right">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light">
+        <a class="brand_primary d-flex align-items-start" href="{{ url_for('index') }}">ACI Catalog</a>
+        <div class=" col-sm-6 pull-right">
             <form class="form-inline my-2 my-lg-0" method="GET" action="/search">
                 <div class="input-group search-bar" >
-                    <input  class="form-control" id="txtSearch" name="query" placeholder="Type Here" aria-controls="example1" type="text"  />
+                    <input  class="form-control" id="txtSearch" name="query" placeholder="Search for endpoints, subnets and more ..." aria-controls="example1" type="text"  />
                     <span class="input-group-addon">
-                        <button class="btn btn-outline-success search-btn" type="submit" name="btnSubmit" value="Search" >Search
+                        <button class="btn search-btn searchbar" type="submit" name="btnSubmit" value="Search" >Search
                             <span class="glyphicon glyphicon-search"></span>
                         </button>
                     </span>
                 </div>
             </form>
         </div>
-        
-        
-
-        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link ajax " href="{{ url_for('catalog', menu='home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax " href="{{ url_for('catalog', menu='endpoints') }}">Endpoints</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='subnets') }}">Subnets</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='epgs') }}">EPGs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='tenants') }}">Tenants</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='bds') }}">Bridge Domains</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='ifs') }}">Interfaces</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='stats') }}">Statistics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ajax" href="{{ url_for('catalog', menu='about') }}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
-    <div class="container-fluid">
+    <div id="main-content">
         {% block content %}
         <!-- Content of the page -->
         {% endblock %}
     </div>
 
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 </body>
-</html>
+    <!-- Footer -->
+    <footer class="footer">
+
+
+        <div class="navbar-logo row align-items-start">
+                {% if sql %}
+                <div class="col">
+                <p class=" navbar-logo justify-content-start d-flex">Connected to SQL Server through {{mysqlhost}} on port 3306 </p>
+                 </div>
+                <div class=" sqldotgreen col">
+                <img src="{{ url_for('static', filename='assets/greendot.png') }}" alt="Connected">
+                 </div>
+                {% else %}
+                <div class="col">
+                <p class=" navbar-logo justify-content-start d-flex">Not Connected to SQL Server </p>
+                 </div>
+                <div class="sqldotred col">
+                <img src="{{ url_for('static', filename='assets/reddot.png') }}" alt="Not Connected">
+                 </div>
+                {% endif %}
+                 <div class="col">
+                {% if user == "" %}
+                <p class=" loggedin navbar-logo" > Login to Continue </p>
+                {% else %}
+            <p class=" loggedin navbar-logo"> Logged in as : {{user}} </p>
+                {% endif %}
+                </div>
+                <div class="col">
+                <a href="https://www.ooredoo.tn" class="navbar-brand d-flex justify-content-end navbar-logo">
+                    <img href="https://www.ooredoo.tn" src="{{ url_for('static', filename='assets/ooredoobrandlogo.png') }}" alt="Ooredoo Logo">
+                </a>
+                </div>
+          </div>
+    </footer>
+</html>   

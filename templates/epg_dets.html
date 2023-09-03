@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Results</h1>
+    <p>Access Type: Admin</p>
+    <p></p>
+    <p>Details for the EPG : {{ query }}</p>
+    <p></p>
+    <p></p>
+    <table class="table" >>
+        <tbody>
+            {% if results %}
+                {% for result in results %}
+                    <tr>
+                        <td>Health Score</td>
+                        <td>{{ result[3] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tenant</td>
+                        <td>{{ result[2] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Endpoint Count</td>
+                        <td>{{ result[4] }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="2">No Results</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

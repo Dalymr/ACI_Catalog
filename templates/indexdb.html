@@ -2,18 +2,23 @@
 
 {% block content %}
 <div class="container">
-    <h1>Welcome to Endpointer!</h1>
+    <h1>Welcome to ACI Catalog !</h1>
     <p id="Access">Access Type: Guest</p>
-    <p>This is the homepage. You can navigate to the endpoints and subnets pages using the links below.</p>
+    <p>This is the homepage. You can navigate to the endpoints and other items using the links below.</p>
     <p></p>
     <ul class="list-group">
         <li class="list-group-item"><a href="{{ url_for('endpointsdb') }}">Endpoints</a></li>
         <li class="list-group-item"><a href="{{ url_for('subnetsdb') }}">Subnets</a></li>
         <li class="list-group-item"><a href="{{ url_for('epgsdb') }}">EPGs</a></li>
-        <li class="list-group-item"><a href="{{ url_for('appprofilesdb') }}">Application Profiles</a></li>
         <li class="list-group-item"><a href="{{ url_for('tenantsdb') }}">Tenants</a></li>
         <li class="list-group-item"><a href="{{ url_for('bridgedomainsdb') }}">Bridge Domains </a></li>
+        <li class="list-group-item"><a href="{{ url_for('interfacesdb') }}">Interfaces</a></li>
+        <li class="list-group-item"><a href="{{ url_for('interfacestatsdb') }}">Statistics</a></li>
         
     </ul>
+    <p></p>
+    <p></p>
+    <p></p>
+    <p class="homepagenote ">Note: Please be advised that certain data may not be accessible due to security measures or rules. </p>
 </div>
 {% endblock %}
