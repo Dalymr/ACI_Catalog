@@ -24,7 +24,7 @@ Using it for first time , You will be prompted a setup Page to configure Your Lo
 Else, you can modify those values by editing the .env folder in the root of the Folder
 
 # Usage
-Login with username and password. Add the APIC URL to connect tp 
+Login with username and password. Add the APIC URL to connect to
 
 Select from the top nav bar menu to show results of read only API queries to the APIC.                                                                                  
 
