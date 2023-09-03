@@ -6,8 +6,6 @@ Our platform is designed to provide efficient management and retrieval of critic
 
 Retrieve information about endpoints, subnets, EPGs, tenants, bridgedomains, interfaces, and more.
 Monitor and analyze network statistics and performance metrics.
-Streamline network management tasks to improve operational efficiency.
-Enhance data security and compliance through advanced access control measures.
 
 # Installation
 
