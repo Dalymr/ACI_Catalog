@@ -37,14 +37,15 @@ bootstrap = Bootstrap(app)
 """
 @app.context_processor
 def inject_user_and_host():
+    global mysql_host
     # Replace these with the logic to get your username and mysql_host
     global user
     user = session["username"]
-    global mysqlhost 
     if mycnx :
         sql = True
+    else : sql = False
     # Return the variables you want to make available in templates
-    return dict(user = user, mysqlhost = mysqlhost, sql = sql)
+    return dict(user = user, mysqlhost = mysql_host, sql = sql)
 
 
 
@@ -1701,35 +1702,29 @@ if __name__ == "__main__":
     app.secret_key = "mysecretkey"
     global myenv
     global apic_url
-    global mysqlhost
-
-
+    global mysql_host
     myenv = True
     try:
         # Check if the .env file exists
         if not os.path.exists(".env"):
+            mycnx =""
+            mysql_host=""
             # Raise an HTTP 404 error
             raise FileNotFoundError(
                 "The .env file is missing. Please create the .env file and set up the environment variables."
             )
-        # Load environment variables from .env file
-        load_dotenv()
-
-        # Define the MySQL connection parameters
-        mysql_host = os.getenv("MYSQL_HOST")
-        mysql_username = os.getenv("MYSQL_USERNAME")
-        mysql_password = os.getenv("MYSQL_PASSWORD")
-        mysql_database = "endpointer"
-
-
-        # Initialize the MySQL database connection
-        mycnx = get_database_connection()
-        mysqlhost = mysql_host
-
-
     except FileNotFoundError as e:
         print("FileNotFoundError:", e)
         myenv = False
+    # Initialize the MySQL database connection
+    # Load environment variables from .env file
+    load_dotenv()
+    # Define the MySQL connection parameters
+    mysql_host = os.getenv("MYSQL_HOST")
+    mysql_username = os.getenv("MYSQL_USERNAME")
+    mysql_password = os.getenv("MYSQL_PASSWORD")
+    mysql_database = "endpointer"
+    mycnx = get_database_connection()
     app.run()
     
 
